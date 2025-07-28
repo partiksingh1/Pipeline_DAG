@@ -1,10 +1,20 @@
-import './App.css'
+
+import { Navbar } from './components/NavBar';
 
 function App() {
+
+  // Logic to handle the node addition
+  const handleAddNode = (label: string) => {
+
+  };
+
+  const handleAutoLayout = () => {
+    // Implement auto layout logic here
+  };
   return (
-    <h1 className='bg-red-400'>
-      hello world
-    </h1>
+    <div className="h-screen w-screen">
+      <Navbar onAddNode={handleAddNode} onAutoLayout={handleAutoLayout} />
+    </div>
   )
 }
 
