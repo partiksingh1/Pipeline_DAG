@@ -1,7 +1,7 @@
 
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Controls, MiniMap, ReactFlow, type Connection, type Edge, type Node } from '@xyflow/react';
 import { Navbar } from './components/NavBar';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomNode from './components/CustomNode';
 
 function App() {
@@ -9,6 +9,7 @@ function App() {
   const initialNodes: Node[] = [];
   const initialEdges: Edge[] = [];
   const [errors, setErrors] = useState<string[]>([]);
+  const [valid, setIsValid] = useState(true);
   const nodeTypes = {
     selectorNode: CustomNode,
   };
@@ -57,6 +58,36 @@ function App() {
 
     return errors;
   };
+  const checkDAGValidity = () => {
+    const validationErrors: string[] = [];
+
+    // Ensure at least 2 nodes
+    if (nodes.length < 2) {
+      validationErrors.push("DAG must have at least 2 nodes");
+    }
+
+    // Ensure all nodes are connected by at least one edge
+    const allNodesConnected = nodes.every((node) =>
+      edges.some((edge) => edge.source === node.id || edge.target === node.id)
+    );
+    if (!allNodesConnected) {
+      validationErrors.push("All nodes must be connected to at least one edge");
+    }
+
+
+    // If there are validation errors, set them and set valid to false
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      setIsValid(false);
+    } else {
+      // No errors found, valid DAG
+      setErrors([]);
+      setIsValid(true);
+    }
+  };
+  useEffect(() => {
+    checkDAGValidity();
+  }, [nodes, edges]);
   const onNodesChange = useCallback(
     (changes: any) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
@@ -84,6 +115,31 @@ function App() {
   const handleAutoLayout = () => {
     // Implement auto layout logic here
   };
+  const renderDAGStatus = () => {
+    if (errors.length > 0) {
+      return (
+        <div className="m-4 w-fit p-4 bg-red-100 border border-red-500 rounded">
+          <h3 className="text-red-600 text-xl font-semibold">Invalid DAG</h3>
+          <ul className="list-disc pl-5 text-red-600">
+            {errors.map((error, index) => (
+              <li key={index} className="text-sm">{error}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
+    if (valid) {
+      return (
+        <div className="m-4 w-fit p-4 bg-green-100 border border-green-500 rounded">
+          <h3 className="text-green-600 text-xl font-semibold">Valid DAG</h3>
+          <p className="text-sm">Your pipeline is valid and ready for execution!</p>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  };
   return (
     <div className="h-screen w-screen">
       <Navbar onAddNode={handleAddNode} onAutoLayout={handleAutoLayout} />
@@ -101,6 +157,9 @@ function App() {
           <MiniMap nodeStrokeWidth={3} />
           <Background color="#ccc" variant={BackgroundVariant.Lines} />
         </ReactFlow>
+      </div>
+      <div className='flex justify-between gap-4'>
+        {renderDAGStatus()}
       </div>
     </div>
   )
