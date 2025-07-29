@@ -1,4 +1,4 @@
-
+import "../App.css"
 import { Handle, Position } from '@xyflow/react'
 interface CustomNodeData {
     label: string;

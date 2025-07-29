@@ -2,3 +2,22 @@
   margin: 0;
   padding: 0;
 }
+.custom-node {
+  align-items: center;
+  background: #fff;
+  border: 2px solid #0000;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px #0000001a;
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  justify-content: center;
+  min-height: 20px;
+  min-width: 40px;
+  padding: 10px;
+  position: relative
+}
+
+.selected {
+  border-color: #3b82f6
+}

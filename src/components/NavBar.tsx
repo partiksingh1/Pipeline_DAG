@@ -16,7 +16,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onAddNode, onAutoLayout }) => {
     };
     const handleSubmitNodeLabel = () => {
         if (nodeLabel.trim() !== '') {
-            onAddNode(nodeLabel);
+            onAddNode(nodeLabel); // Call the parent callback with the entered label
             setNodeLabel(''); // Reset the input field
             setInputVisible(false); // Hide the input after submitting
         }
@@ -30,37 +30,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onAddNode, onAutoLayout }) => {
                 <button onClick={handleAddNodeClick} className="px-4 py-2 bg-black text-white rounded cursor-pointer">Add Node</button>
                 {/* Conditionally show input */}
                 {isInputVisible && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-opacity-50">
-                        <div className="flex flex-col items-center gap-4 bg-white p-8 border rounded shadow-lg">
-                            <h1 className="text-xl font-semibold">Create a Node</h1>
-                            <input
-                                type="text"
-                                value={nodeLabel}
-                                onChange={handleInputChange}
-                                className="px-4 py-2 border rounded"
-                                placeholder="Enter node name"
-                            />
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={handleSubmitNodeLabel}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded"
-                                >
-                                    Submit
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setInputVisible(false);
-                                        setNodeLabel("");
-                                    }}
-                                    className="px-4 py-2 bg-red-500 text-white rounded"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="text"
+                            value={nodeLabel}
+                            onChange={handleInputChange}
+                            className="px-4 py-2 border rounded"
+                            placeholder="Enter node name"
+                        />
+                        <button
+                            onClick={handleSubmitNodeLabel}
+                            className="px-4 py-2 bg-blue-500 text-white rounded"
+                        >
+                            Submit
+                        </button>
                     </div>
                 )}
-                <button onClick={onAutoLayout} className="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">Auto Layout</button>
+                <button onClick={onAutoLayout} className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">Auto Layout</button>
             </div>
         </div>
     )
