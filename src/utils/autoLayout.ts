@@ -35,8 +35,8 @@ export const AutoLayout = (nodes: Node[], edges: Edge[]) => {
         return {
             ...node,
             position: {
-                x: pos.x - nodeWidth / 2, // Center the node in the layout
-                y: pos.y - nodeHeight / 2,
+                x: pos.x,// Center the node in the layout
+                y: pos.y
             },
         };
     });

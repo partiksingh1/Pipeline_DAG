@@ -17,7 +17,6 @@ function App() {
     selectorNode: CustomNode,
   };
   const nodeIdRef = useRef(0);
-
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   // Logic to handle the node addition
@@ -77,6 +76,49 @@ function App() {
       validationErrors.push("All nodes must be connected to at least one edge");
     }
 
+    // Helper: build adjacency list
+    const adjacencyList: Record<string, string[]> = {};
+    nodes.forEach((node) => {
+      adjacencyList[node.id] = [];
+    });
+    edges.forEach((edge) => {
+      if (adjacencyList[edge.source]) {
+        adjacencyList[edge.source].push(edge.target);
+      }
+    });
+
+    // Helper: DFS to detect cycle
+    const visited = new Set<string>();
+    const recStack = new Set<string>();
+    let hasCycle = false;
+
+    const dfs = (nodeId: string) => {
+      if (recStack.has(nodeId)) {
+        hasCycle = true;
+        return;
+      }
+      if (visited.has(nodeId)) return;
+
+      visited.add(nodeId);
+      recStack.add(nodeId);
+
+      for (const neighbor of adjacencyList[nodeId] || []) {
+        dfs(neighbor);
+      }
+
+      recStack.delete(nodeId);
+    };
+
+    for (const node of nodes) {
+      if (!visited.has(node.id)) {
+        dfs(node.id);
+        if (hasCycle) break;
+      }
+    }
+
+    if (hasCycle) {
+      validationErrors.push("Graph contains a cycle. DAGs cannot have cycles.");
+    }
 
     // If there are validation errors, set them and set valid to false
     if (validationErrors.length > 0) {
@@ -124,6 +166,7 @@ function App() {
     })
     setIsJsonPreviewOpen(true);
   };
+
 
   const handleAutoLayout = useCallback(() => {
     const { nodes: layoutNodes, edges: layoutEdges } = AutoLayout(nodes, edges)
