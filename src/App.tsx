@@ -1,8 +1,10 @@
-
-import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Controls, MiniMap, ReactFlow, type Connection, type Edge, type Node } from '@xyflow/react';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Controls, MarkerType, MiniMap, ReactFlow, type Connection, type Edge, type Node } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { Navbar } from './components/NavBar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomNode from './components/CustomNode';
+import JsonPreview from './components/JsonPreview';
+import { AutoLayout } from './utils/autoLayout';
 
 function App() {
 
@@ -10,6 +12,7 @@ function App() {
   const initialEdges: Edge[] = [];
   const [errors, setErrors] = useState<string[]>([]);
   const [valid, setIsValid] = useState(true);
+  const [isJsonPreviewOpen, setIsJsonPreviewOpen] = useState(false);
   const nodeTypes = {
     selectorNode: CustomNode,
   };
@@ -111,10 +114,22 @@ function App() {
     },
     [nodes],
   );
-
-  const handleAutoLayout = () => {
-    // Implement auto layout logic here
+  const handleJsonPreview = () => {
+    if (!valid) {
+      return
+    }
+    scrollTo({
+      behavior: "smooth",
+      top: 1000
+    })
+    setIsJsonPreviewOpen(true);
   };
+
+  const handleAutoLayout = useCallback(() => {
+    const { nodes: layoutNodes, edges: layoutEdges } = AutoLayout(nodes, edges)
+    setNodes(layoutNodes)
+    setEdges(layoutEdges)
+  }, [nodes, edges, setNodes, setEdges])
   const renderDAGStatus = () => {
     if (errors.length > 0) {
       return (
@@ -152,6 +167,13 @@ function App() {
           onConnect={onConnect}
           fitView
           nodeTypes={nodeTypes}
+          defaultEdgeOptions={{
+            animated: true,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#3b83e6',
+            },
+          }}
         >
           <Controls />
           <MiniMap nodeStrokeWidth={3} />
@@ -160,7 +182,9 @@ function App() {
       </div>
       <div className='flex justify-between gap-4'>
         {renderDAGStatus()}
+        <button onClick={handleJsonPreview} className="px-4 m-8 bg-blue-500 text-white rounded cursor-pointer">JSON preview</button>
       </div>
+      {isJsonPreviewOpen && <JsonPreview nodes={nodes} edges={edges} />}
     </div>
   )
 }
